@@ -1,0 +1,52 @@
+<%- include('../layout/header.ejs') %>
+<link rel="stylesheet" type="text/css" href="/node_modules/mditor/dist/css/mditor.min.css">
+<script src="/node_modules/mditor/dist/js/mditor.min.js"></script>
+<div class="container-fluid">
+  <h1>发表文章页</h1>
+  <hr>
+  <form id="form">
+    <div class="form-group">
+      <!-- <input type="hidden" name="authorId" id="authorId" value="<% user.id %>"> -->
+      <label for="">文章标题</label>
+      <input type="text" name="title" id="title" class="form-control" required maxlength="30">
+    </div>
+    <div class="form-group">
+      <label for="">文章内容</label>
+      <!--mditor  -->
+      <textarea name="content" id="editor" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary pull-left">发表文章</button>
+  </form>
+</div>
+
+<script>
+  $(function(){
+    // 调用mditor 插件，将文本域 改造成 一个 markd 编辑器展示出来
+    var mditor =  Mditor.fromTextarea(document.getElementById('editor'));
+    mditor.value = '** hello **';
+    $('#form').on('submit',function(e){
+      e.preventDefault();
+      $.ajax({
+        url:'/article/add',
+        data:{
+          title:$('#title').val(),//获取文章标题
+          content:mditor.value,//获取文字内容
+          // authorId:$('#authorId').val()//提交作者id
+          authorid:'<%= user.id %>'//把文章的 user数据表里 id 给 articles 数据表 的 authorid
+
+        },
+        type:'post',
+        dataType:'json',
+        success:function(results){
+          // console.log(results);
+          if(results.err_code===0){
+            location.href = '/article/info?id='+results.id;
+          } else {
+            alert(results.msg);
+          }
+        }
+      });
+    });
+  }) 
+</script>
+<%- include('../layout/footer.ejs') %>
